@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID-LAB | 보듬이들 프로젝트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap');
+        
+        :root {
+            --bg-color: #fcfcfc;
+            --text-color: #1a1a1a;
+            --accent-color: #3b82f6;
+            --roadmap-mint: #2d9d8d;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* Minimal Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Floating Animation */
+        .character-float { animation: floating 3s ease-in-out infinite; }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Dynamic Title Animation */
+        .animated-title { perspective: 1000px; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .title-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .animated-title span {
+            display: inline-block; opacity: 0; transform-origin: center bottom;
+            animation: introBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, autoJump 2s ease-in-out infinite;
+            cursor: default; transition: all 0.4s; padding: 0 2px;
+        }
+        .animated-title span.small-x { font-size: 0.5em; margin: 0 15px; color: #ccc; }
+        @keyframes introBounce {
+            0% { opacity: 0; transform: translateY(100px) scale(0.3); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes autoJump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* Modal Structure */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        #modal-content {
+            background: white; padding: 40px; border-radius: 30px;
+            transform: scale(0.8); opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 450px; text-align: center; position: relative;
+        }
+        #modal-overlay.active { display: flex; }
+        #modal-overlay.active #modal-content { transform: scale(1); opacity: 1; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Cursor Follower -->
+    <div id="follower" class="w-5 h-5 bg-blue-500 rounded-full fixed pointer-events-none z-[9999] mix-blend-difference transition-transform duration-100 ease-out"></div>
+
+    <!-- Modal for Characters -->
+    <div id="modal-overlay" onclick="closeModal()">
+        <div id="modal-content" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-black transition">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <div class="w-48 h-48 mx-auto mb-6 rounded-2xl overflow-hidden bg-gray-50 shadow-inner">
+                <img id="modal-img" src="" alt="Bodeumi" class="w-full h-full object-cover">
+            </div>
+            <h3 id="modal-title" class="text-3xl font-black mb-2 text-gray-900">#01 Bodeum-i</h3>
+            <p class="text-blue-500 font-bold mb-4 italic">Social Identity Asset</p>
+            <p id="modal-desc" class="text-gray-500 leading-relaxed">
+                이 보듬이는 우리 사회의 갈등을 완화하고 따뜻한 연결을 돕는 고유한 페르소나입니다. 
+                데이터 기부를 통해 더 많은 보듬이들을 만날 수 있습니다.
+            </p>
+            <button onclick="closeModal()" class="mt-8 bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-blue-600 transition">확인</button>
+        </div>
+    </div>
+
+    <!-- Intro Section -->
+    <section id="intro" class="min-h-screen flex flex-col justify-center items-center text-center px-6">
+        <div class="mb-12 character-float">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="#3b82f6" fill-opacity="0.1"/>
+                <circle cx="40" cy="45" r="3" fill="#1a1a1a"/>
+                <circle cx="60" cy="45" r="3" fill="#1a1a1a"/>
+                <path d="M40 65C40 65 45 70 50 70C55 70 60 65 60 65" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1 class="animated-title text-5xl md:text-8xl font-black tracking-tight mb-10">
+            <div id="row-1" class="title-row"></div>
+            <div id="row-2" class="title-row text-4xl md:text-7xl opacity-80"></div>
+        </h1>
+        <p class="reveal text-gray-400 max-w-xl mx-auto">사회 트렌드 연구소 ID-LAB의 마음 보듬 프로젝트</p>
+    </section>
+
+    <!-- Campaign Section (18 Characters) -->
+    <section id="campaign" class="py-32 bg-gray-50 px-10">
+        <div class="max-w-6xl mx-auto text-center mb-16 reveal">
+            <h2 class="text-4xl md:text-6xl font-black mb-6 italic uppercase">Bodeum-i Friends</h2>
+            <p class="text-gray-400">사진을 클릭하여 각 보듬이의 아이덴티티를 확인하세요.</p>
+        </div>
+        
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4 max-w-5xl mx-auto" id="char-grid">
+            <!-- 18명의 보듬이가 자바스크립트로 생성됩니다 -->
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="survey" class="py-32 text-center px-6">
+        <h2 class="text-3xl md:text-5xl font-black mb-10">당신에게 어울리는 보듬이는 누구인가요?</h2>
+        <a href="https://smore.im/quiz/e5poYfWYRt" target="_blank" class="inline-block bg-black text-white px-12 py-5 rounded-full text-lg font-bold hover:bg-blue-600 transition shadow-xl">
+            테스트 시작하기
+        </a>
+    </section>
+
+    <footer class="py-10 text-center text-gray-300 text-[10px] tracking-widest uppercase">
+        © 2024 ID-LAB X BODEUMI. ALL RIGHTS RESERVED.
+    </footer>
+
+    <script>
+        // 제목 애니메이션
+        const row1Text = "ID-LAB X 보듬이들";
+        const row2Text = "프로젝트";
+        const row1Container = document.getElementById('row-1');
+        const row2Container = document.getElementById('row-2');
+        
+        function animateText(text, container, startOffset = 0) {
+            text.split("").forEach((char, index) => {
+                const span = document.createElement('span');
+                if (char === " ") span.innerHTML = "&nbsp;";
+                else if (char.toLowerCase() === "x") span.classList.add('small-x'), span.textContent = char;
+                else span.textContent = char;
+                const delay = (index + startOffset) * 0.1;
+                span.style.animationDelay = `${delay}s, ${delay}s`;
+                container.appendChild(span);
+            });
+        }
+        animateText(row1Text, row1Container, 0);
+        animateText(row2Text, row2Container, row1Text.length);
+
+        // 커서 팔로워
+        const follower = document.getElementById('follower');
+        document.addEventListener('mousemove', (e) => {
+            follower.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
+
+        // 18명의 보듬이 그리드 생성
+        const grid = document.getElementById('char-grid');
+        for(let i=1; i<=18; i++) {
+            const num = String(i).padStart(2, '0');
+            // 사진 경로: index.html과 같은 폴더에 char01.png, char02.png...
+            const imgSrc = `char${num}.png`; 
+            const placeholder = `https://placehold.co/300x300?text=Bodeum-${num}`;
+
+            const item = document.createElement('div');
+            item.className = "reveal aspect-square bg-white border border-gray-100 flex items-center justify-center hover:shadow-2xl hover:scale-105 transition-all cursor-pointer relative group overflow-hidden";
+            item.onclick = () => openCharModal(num, imgSrc, placeholder);
+            
+            item.innerHTML = `
+                <img src="${imgSrc}" onerror="this.src='${placeholder}'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                <div class="absolute bottom-1 right-1 bg-black/40 text-white text-[8px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">#${num}</div>
+            `;
+            grid.appendChild(item);
+        }
+
+        function openCharModal(num, src, placeholder) {
+            const overlay = document.getElementById('modal-overlay');
+            const modalImg = document.getElementById('modal-img');
+            const title = document.getElementById('modal-title');
+            
+            modalImg.src = src;
+            modalImg.onerror = () => modalImg.src = placeholder;
+            title.textContent = `#${num} Bodeum-i`;
+            
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 스크롤 애니메이션
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
